@@ -16,7 +16,7 @@ class Bcoclass5 extends Controller
      */
     public function index($bmname='')
     {
-        $list = Db::name('Bcoclass1')->field('ClassID1','ClassName1')->select();
+        $list = Db::name('Bcoclass5')->field('ClassID5','ClassName5')->select();
         return json($list);
     }
 

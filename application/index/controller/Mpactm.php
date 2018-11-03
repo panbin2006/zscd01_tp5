@@ -75,7 +75,7 @@ class Mpactm extends Controller
     *按工程名称查询记录
     */
     public function match($projectname=''){
-        $sql="select  shtag,htbh, coid,projectid,projectname,custname,custid,pdate,buildid,buildname from mpactm where  projectname = '".$projectname."'";
+        $sql="select  shtag,htbh, coid,projectid,projectname,custname,custid,pdate,buildid,buildname,classid1,classname1,classname5 from mpactm where  projectname = '".$projectname."'";
         // return $sql;
         $rows = Db::query($sql);
         return json_encode($rows);

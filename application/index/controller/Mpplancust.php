@@ -55,7 +55,7 @@ class Mpplancust extends Controller
     public function read($id)
     {
        $result = MpplancustModel::get($id);
-       return json($result);
+       return json_encode($result);
     }
 
     /**
