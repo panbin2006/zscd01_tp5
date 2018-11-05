@@ -78,9 +78,11 @@ class Mpplancust extends Controller
      */
     public function update(Request $request, $id)
     {
+       $mpplancust =new  MpplancustModel();
        $data   = $request->param();
-       $result = MpplancustModel::update($data,['Planid' => $id]);
-       return json($result);
+       $mpplancust->update($data,['planid'=>$id]);
+       $result=$mpplancust->save();
+       return json_encode($result);
     }
 
     /**
@@ -92,7 +94,7 @@ class Mpplancust extends Controller
     public function delete($id)
     {
 
-        $result = MpplancustModel::destroy($id);
+        $result = MpplancustModel::destroy(['planid'=>$id]);
 
         return json($result);
     }
