@@ -13,11 +13,11 @@ return [
     // 数据库类型
     'type'            => 'sqlsrv',
     // 服务器地址
-    // 'hostname'        => 'zsxh2018.in.8866.org,19303',   
-    'hostname'        => '192.168.101.88,1433',   
+    'hostname'        => 'zsxh2018.in.8866.org,19303',   
+    // 'hostname'        => '192.168.101.88,1433',   
     // 数据库名
-    // 'database'        => 'jbzsoft',
-    'database'        => 'jbzsoft_18_zscdxh',
+    'database'        => 'jbzsoft',
+    // 'database'        => 'jbzsoft_18_zscdxh',
    
     // 用户名
     'username'        => 'jbzsoft',

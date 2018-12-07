@@ -71,6 +71,18 @@ class Carinfo extends Controller
         return json($result);
     }
 
+
+    /**
+    **导出Excel
+    **
+    **/
+
+    public function export(){
+        $sql="select   * from matinfo";
+        $rows = Db::query($sql);
+        return json_encode($rows);
+    }
+
     /**
      * 删除指定资源
      *
@@ -82,4 +94,6 @@ class Carinfo extends Controller
         $result = CarinfoModel::destroy($id);
         return json($result);
     }
+
+
 }
