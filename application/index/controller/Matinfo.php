@@ -38,7 +38,7 @@ class Matinfo extends Controller
             $objSheet->setCellValue('B'.$index, $val['matname']);
             $objSheet->setCellValue('C'.$index, $val['style']);
             $objSheet->setCellValue('D'.$index, $val['unit']);
-            $objSheet->setCellValue('F'.$index, $val['zsrate']);
+            $objSheet->setCellValue('E'.$index, $val['zsrate']);
             $index++;
         }
         // var_dump($rows);
