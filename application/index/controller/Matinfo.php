@@ -43,6 +43,7 @@ class Matinfo extends Controller
         }
         // var_dump($rows);
         // exit;
+        $objSheet->setCellValue('E'.$index, '=SUM(E2:E16)');
 
         $objWriter = PHPExcel_IOFactory::createWriter($objPHPExcel,'Excel5'); //生成Excel文件
 		// $objWriter->save("D:/export_1.xls");//保存文件
