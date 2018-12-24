@@ -297,6 +297,73 @@ class Msaleday extends Controller
 
 
     /**
+    **销售对账单
+    **@param    String   $satrt         开始日期
+    **@param    String   $end           截止日期
+    **@param    String   $custName      客户名称
+    **/
+    public function custDetail($start, $end, $custid){
+        
+        $year=substr($start, 0,4);//获取年份
+        $month=substr($start,5,2);//获取月份
+        $filename=$custid.$year.'年('.$month.')对账单';
+        $dir=dirname(__FILE__); //获取当前php脚本所在路径
+        //导出excel实现 、
+        $objPHPExcel = new PHPExcel(); //创建excel对象
+        $objSheet = $objPHPExcel->getActiveSheet(); //获取活动sheet
+        //设置默认单元格样式
+        $objSheet->getDefaultStyle()->getAlignment()->setHorizontal(\PHPExcel_Style_Alignment::HORIZONTAL_CENTER)->setVertical(\PHPExcel_Style_Alignment::VERTICAL_CENTER);//设置单元格默认对齐方式
+        $objSheet->getDefaultStyle()->getAlignment()->setWrapText(true); //设置默认自动换行
+        $objSheet->getDefaultStyle()->getFont()->setSize(9);//设置默认字体
+        //报表抬头
+        $objSheet->setTitle($filename);
+        $objSheet->setCellValue('A1','东莞市协同混凝土有限公司'.$filename); //报表抬头，公司名称
+        $objSheet->mergeCells('A1:J1');//报表抬头，公司名称
+        $objSheet->getStyle('A1')->getFont()->setSize(18)->setBold(true);//格式化报表标题
+
+        //购货单位
+        $objSheet->setCellValue('A2', "购货单位：".$custid); //客户名称
+        $objSheet->getStyle('A2')->getAlignment()->setHorizontal(\PHPExcel_Style_Alignment::HORIZONTAL_LEFT); //单元格左对齐
+        $objSheet->mergeCells('A2:J2'); //合并客户名称单元格
+        $objSheet->getStyle('A2')->getFont()->setSize(11);
+        //表头,设置列名
+        $objSheet->setCellValue('A3','日期');
+        $objSheet->setCellValue('B3','工程名称');
+        $objSheet->setCellValue('C3','施工部位');
+        $objSheet->setCellValue('D3','强度等级');
+        $objSheet->setCellValue('E3','方量');
+        $objSheet->setCellValue('F3','单价(元)');
+        $objSheet->setCellValue('G3','泵费');
+        $objSheet->setCellValue('H3','补运费');
+        $objSheet->setCellValue('I3','金额(元)');
+        $objSheet->setCellValue('J3','备注');
+        //设置单元格宽度
+        $objSheet->getColumnDimension('A')->setWidth(15);//设置"日期"宽度
+        $objSheet->getColumnDimension('B')->setWidth(39.67);//设置"工程名称"宽度
+        $objSheet->getColumnDimension('C')->setWidth(45.17);//设置"施工部位"宽度
+        $objSheet->getColumnDimension('D')->setWidth(14.83);//设置"强度"宽度
+        $objSheet->getColumnDimension('E')->setWidth(15.83);//设置"方量"宽度
+        $objSheet->getColumnDimension('F')->setWidth(12.17);//设置"单价(元)"宽度
+        $objSheet->getColumnDimension('G')->setWidth(17.17);//设置"泵费"宽度
+        $objSheet->getColumnDimension('H')->setWidth(14.83);//设置"补运费"宽度
+        $objSheet->getColumnDimension('I')->setWidth(14.83);//设置"金额(元)"宽度
+        $objSheet->getColumnDimension('J')->setWidth(14.83);//设置"备注"宽度
+
+        $objSheet->getStyle('A3:J3')->getFont()->setSize(11)->setBold(true);//设置表头字体
+        
+        $sql = "select PDate,ProjectName,part,Grade+TSName Grade,Quality,PriceTotal,MoneyBS,MoneyKZ,MoneyBQTotal,Remark1 from  MSaleDay where custid='".$custid."'and PDate>='".$start."' and PDate<='".$end."'";//按客户汇总数据
+        echo $sql;
+        $rows=Db::query($sql);
+        var_dump($rows);
+        // exit;
+        
+        //输出excel文件到浏览器
+        $objWriter = PHPExcel_IOFactory::createWriter($objPHPExcel,'Excel5'); //生成Excel文件
+        self::browser_export('Excel5', $filename.".xls");//输出文件到浏览器
+        $objWriter->save('php://output');
+    }
+
+    /**
     *按业务员、客户、工程、强度、施工方式等生成多维数组
     *一维数据转成多维数据
     *@param Array  $arr  传入的一维数组
