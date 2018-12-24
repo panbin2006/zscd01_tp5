@@ -42,9 +42,9 @@ class Msaleday extends Controller
         $objSheet->getColumnDimension('C')->setWidth(30);//设置“工程名称”列宽
         $objSheet->getColumnDimension('D')->setWidth(30);//设置“部位”列宽
         //第一行数据 
-        $objSheet->setTitle('日报表');
+        $objSheet->setTitle('按生产日期导出');
         $objSheet->setCellValue('D1','东莞市协同混凝土有限公司'); //报表抬头，公司名称
-        $objSheet->setCellValue('D2','日 报 表'); //报表标题
+        $objSheet->setCellValue('D2','销售列表'); //报表标题
         $objSheet->getStyle('D2')->getFont()->setSize(30)->setBold(true);
         $objSheet->setCellValue('B3','销售（方）');
         $objSheet->setCellValue('H3','2018年12月20日');
@@ -96,7 +96,7 @@ class Msaleday extends Controller
     }
     /**
     **导出日报表
-    **
+    **@param String  $pdate   要生成报表的日期 '2018-12-01'
     **/
     public function exportDay($pdate){
         $dir=dirname(__FILE__); 
@@ -169,7 +169,7 @@ class Msaleday extends Controller
         $objSheet->setCellValue('G'.$index, '=SUM(G5:G'.($index-1).')');//方量合计数
         $objWriter = PHPExcel_IOFactory::createWriter($objPHPExcel,'Excel5'); //生成Excel文件
         // $objWriter->save("D:/export_1.xls");//保存文件
-        self::browser_export('Excel5', "browser_excel03.xls");//输出文件到浏览器
+        self::browser_export('Excel5', "销售日报表".$pdate.".xls");//输出文件到浏览器
         $objWriter->save('php://output');
     }
 
@@ -177,6 +177,8 @@ class Msaleday extends Controller
 
     /**
     **销售明细月报表
+    **@param  String  $start  开始时间
+    **@param  String  $end    截止时间
     **/
     public function monthDetail($start, $end){
         $year=substr($start, 0,4);//获取年份
@@ -186,14 +188,16 @@ class Msaleday extends Controller
         //导出excel实现 、
         $objPHPExcel = new PHPExcel(); //创建excel对象
         $objSheet = $objPHPExcel->getActiveSheet(); //获取活动sheet
-        //设置单元格样式
+        //设置默认单元格样式
         $objSheet->getDefaultStyle()->getAlignment()->setHorizontal(\PHPExcel_Style_Alignment::HORIZONTAL_CENTER)->setVertical(\PHPExcel_Style_Alignment::VERTICAL_CENTER);//设置单元格默认对齐方式
         $objSheet->getDefaultStyle()->getAlignment()->setWrapText(true); //设置默认自动换行
+        $objSheet->getDefaultStyle()->getFont()->setSize(9);//设置默认字体
         //报表抬头
         $objSheet->setTitle('销售明细表');
         $objSheet->setCellValue('C1','东莞市协同混凝土有限公司'); //报表抬头，公司名称
         $objSheet->mergeCells('C1:F1');//合并公司名称单元格
         $objSheet->setCellValue('C2','2018年十二月混凝土销售明细表'); //报表标题
+        $objSheet->getStyle('C2')->getFont()->setSize(18)->setBold(true);//格式化报表标题
         $objSheet->mergeCells('C2:F2');
         $objSheet->getStyle('D2')->getFont()->setSize(30)->setBold(true);
         $objSheet->setCellValue('B3','单位：方');
@@ -207,19 +211,26 @@ class Msaleday extends Controller
         $objSheet->setCellValue('G4','方数合计');
         $objSheet->setCellValue('H4','备注');
         //设置单元格宽度
-        $objSheet->getColumnDimension('B')->setWidth(30);//设置客户列宽度
-        $objSheet->getColumnDimension('C')->setWidth(30);//设置工程列宽度
-        $objSheet->getColumnDimension('G')->setWidth(10);//设置工程合计列宽度
-        $objSheet->getStyle('A4:H4')->getFont()->setSize(12)->setBold(true);//设置表头字体
+        $objSheet->getColumnDimension('A')->setWidth(7.33);//设置"序号"宽度
+        $objSheet->getColumnDimension('B')->setWidth(39.67);//设置"施工单位"宽度
+        $objSheet->getColumnDimension('C')->setWidth(45.17);//设置"工程名称"宽度
+        $objSheet->getColumnDimension('D')->setWidth(14.83);//设置"标号"宽度
+        $objSheet->getColumnDimension('E')->setWidth(15.83);//设置"浇注方式"宽度
+        $objSheet->getColumnDimension('F')->setWidth(12.17);//设置"数量"宽度
+        $objSheet->getColumnDimension('G')->setWidth(17.17);//设置"方数合计"宽度
+        $objSheet->getColumnDimension('H')->setWidth(8.5);//设置"备注"宽度
+        $objSheet->getStyle('A4:H4')->getFont()->setSize(11)->setBold(true);//设置表头字体
         $sql = "select ClassName1,custname,projectname,grade,BTrans,sum(Quality) fl from MSaleDay where pdate>='".$start."' and pdate<='".$end."'group by classname1,CustName,ProjectName,Grade,BTrans";//按业务员等汇总数据
         // echo $sql;
         $rows=Db::query($sql);
         $rows = self::formatArray($rows);//按业务员、客户、工程、强度、施工方式等生成多维数组
-        var_dump($rows);
+        //var_dump($rows);
         // exit;
         $index = 5;//填充数据首行行号
         $num = 1;  //序号
+        $month_sum=[];//业务员数量合计单元格数组
         foreach ($rows as $class_key => $custs) {//按业务员遍历
+            $class_start=$index; //业务员起始行号
             foreach ($custs as $key => $projects) {//按客户遍历
                 $cust_start = $index; //当前客户起始行号
                 $objSheet->setCellValue('A'.$index, $num);//客户
@@ -234,7 +245,6 @@ class Msaleday extends Controller
                             $objSheet->setCellValue('E'.$index, $val['BTrans']);//浇注方式
                             $objSheet->setCellValue('F'.$index, $val['fl']);//方量
                             $objSheet->getStyle('F'.$index)->getAlignment()->setHorizontal(\PHPExcel_Style_Alignment::HORIZONTAL_RIGHT); //设置方量列数值右对齐
-                            //$objSheet->setCellValue('G'.$index, $index);//合计
                             // $objSheet->setCellValue('H'.$index, $val['remark1']);
                             $index++; //行号自增
                         }
@@ -250,40 +260,81 @@ class Msaleday extends Controller
                 $objSheet->mergeCells('A'.$cust_start.':A'.$cust_end); //合并序号列单元格
                 $num++; //序号自增
             }
-           //业务员合计 
-            $objSheet->setCellValue('A'.$index,$class_key.'业务员合计:');//业务员合计行
+            $class_end=$index-1; //业务员结束行号
+            $class_export=$index; //业务员汇总行的行号
+            $index++;
+           /*
+            *业务员合计 
+            */
+            $objSheet->setCellValue('H'.$class_end, $class_start.':'.$class_end);//打印开始与结束index到“备注”列
+            $objSheet->setCellValue('A'.$class_export, $class_key.$month."月销售合计：");//业务员汇总行
+            $objSheet->setCellValue('F'.$class_export, "=SUM(F".$class_start.":F".$class_end.")"); //业务员“数量”列汇总
+
+            $objSheet->mergeCells("A".$class_export.":E".$class_export);//合并业务行
+            $objSheet->mergeCells("F".$class_export.":G".$class_export);//合并业务员合计列
+            $objSheet->getStyle("A".$class_export)->getFont()->setSize(12)->setBold(true);//格式化业务员行
+            $objSheet->getStyle("F".$class_export)->getFont()->setSize(12)->setBold(true);//格式业务员“数量”列汇总
+
+            array_push($month_sum,$class_export); //业务员合计单元格位置保存到数组
         }
         //总计
-
+        $monthSumIndex = $index + 1;
+        $objSheet->setCellValue("A".$monthSumIndex, $month."月销售总计："); //总计标题单元格
+        $objSheet->mergeCells("A".$monthSumIndex.":E".$monthSumIndex); //合并总计标题单元格
+        
+        $monthSumStr=self::getMonthSumStr($month_sum, 'F');//返回月合计单元格求和公式
+        $objSheet->setCellValue("F".$monthSumIndex, $monthSumStr);
+        $objSheet->mergeCells("F".$monthSumIndex.":G".$monthSumIndex); //总计数量单元格
+        $objSheet->getStyle("A".$monthSumIndex)->getFont()->setSize(12)->setBold(true);//格式化总计单元格
+        $objSheet->getStyle("F".$monthSumIndex)->getFont()->setSize(12)->setBold(true);//格式化"数量"合计
+        
         //输出excel文件到浏览器
         $objWriter = PHPExcel_IOFactory::createWriter($objPHPExcel,'Excel5'); //生成Excel文件
         // $objWriter->save("D:/export_1.xls");//保存文件
-        self::browser_export('Excel5', "browser".$filename.".xls");//输出文件到浏览器
+        self::browser_export('Excel5', $filename.".xls");//输出文件到浏览器
         $objWriter->save('php://output');
     }
 
+
     /**
-    **按业务员、客户、工程、强度、施工方式等生成多维数组
-    **一维数据转成多维数据
+    *按业务员、客户、工程、强度、施工方式等生成多维数组
+    *一维数据转成多维数据
+    *@param Array  $arr  传入的一维数组
     **/
     function formatArray($arr){
         //创建一个新的空数组
         $arr_new=[];
         foreach ($arr as $key => $val) {
             $arr_new[$val['ClassName1']][$val['custname']][$val['projectname']][$val['grade']][$val['BTrans']] = $val;
-            // foreach ($arr as $key => $val) {
-            //     $arr_new[][$val['custname']] = $val;
-            // }
         }
-
         return $arr_new;
     }
 
 
+    /**
+    **生成月销售总计列的=SUM(Fxx+Fx+...)
+    *@param    Array   $arr    单元格数组
+    *@param    String  $column 单元格列
+    *@return   String  $result  返回求和字符串
+    **/
+    function  getMonthSumStr($arr,$column){
+        $str="=SUM(";
+        foreach ($arr as $key => $val) {
+            if($key==0){
+                $str.=$column.$val;
+            }else{
+                $str.="+".$column.$val;  
+            }
+        }
+        $result=$str.")";
+        return $result;
+    }
 
     /**
-    **
-    ** 保存Excel到浏览器
+    *
+    * 保存Excel到浏览器
+    * @param     string  $type       excel文件类型
+    * @param     string  $filename   excel文件名称
     **/
     function browser_export($type, $filename){
         ob_end_clean();//清除缓冲区,避免乱码
@@ -310,6 +361,7 @@ class Msaleday extends Controller
 
     /**
     **获取不同的边框样式
+    **@param   $color 边框颜色
     **/
     function getBorderStyle($color){
         $styleArray = array(
