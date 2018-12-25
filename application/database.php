@@ -14,8 +14,8 @@ return [
     'type'            => 'sqlsrv',
     // 服务器地址
     // 'hostname'        => 'zsxh2018.in.8866.org,19303',   
-    'hostname'        => '192.168.101.102\pan',  
-    // 'hostname'        => '192.168.1.102',  
+    // 'hostname'        => '192.168.101.102\pan',  
+    'hostname'        => '192.168.1.102',  
     // 数据库名
     // 'database'        => 'jbzsoft',
    'database'        => 'jbzsoft_2018_dj',
@@ -25,8 +25,8 @@ return [
     // 密码
     'password'        => '810506',
     // 端口
-    'hostport'        => '2524',
-    // 'hostport'        => '1433',
+    // 'hostport'        => '2524',
+    'hostport'        => '1433',
     // 连接dsn
     'dsn'             => '',
     // 数据库连接参数
