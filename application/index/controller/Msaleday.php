@@ -302,11 +302,11 @@ class Msaleday extends Controller
     **@param    String   $end           截止日期
     **@param    String   $custName      客户名称
     **/
-    public function custDetail($start, $end, $custname){
+    public function custDetail($start, $end, $custid){
         
         $year=substr($start, 0,4);//获取年份
         $month=substr($start,5,2);//获取月份
-        $filename=$custname.$year.'年('.$month.')对账单';
+        $filename=$year.'年('.$month.')对账单';
         $dir=dirname(__FILE__); //获取当前php脚本所在路径
         //导出excel实现 、
         $objPHPExcel = new PHPExcel(); //创建excel对象
@@ -351,7 +351,7 @@ class Msaleday extends Controller
 
         $objSheet->getStyle('A3:J3')->getFont()->setSize(11)->setBold(true);//设置表头字体
         
-        $sql = "select convert(char(10),PDate,121) PDate,ProjectName,Part,Grade+TSName Grade,Quality,PriceTotal,MoneyBS,MoneyKZ,MoneyBQTotal,Remark1 from  MSaleDay where custname='".$custname."'  and convert(char(10),PDate,121)>='".$start."' and convert(char(10),PDate,121)<='".$end."'";//按客户汇总数据
+        $sql = "select convert(char(10),PDate,121) PDate,ProjectName,Part,Grade+TSName Grade,Quality,PriceTotal,MoneyBS,MoneyKZ,MoneyBQTotal,Remark1 from  MSaleDay where custid='".$custid."'  and convert(char(10),PDate,121)>='".$start."' and convert(char(10),PDate,121)<='".$end."'";//按客户汇总数据
         echo $sql;
         $rows=Db::query($sql);
         // var_dump($rows);

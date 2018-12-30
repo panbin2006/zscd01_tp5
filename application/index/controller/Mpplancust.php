@@ -18,7 +18,7 @@ class Mpplancust extends Controller
     {
        // $result =  MpplancustModel::select();
        // return json_encode($result);
-        $sql="select top 20 * from Mpplancust order by iden_id desc";
+        $sql="select top 100 * from Mpplancust where shtag='0' order by pdate desc";
         $rows = Db::query($sql);
         return json_encode($rows);
     }
