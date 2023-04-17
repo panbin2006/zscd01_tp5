@@ -322,7 +322,7 @@ class Msaleday extends Controller
         $objSheet->getStyle('A1')->getFont()->setSize(18)->setBold(true);//格式化报表标题
 
         //购货单位
-        $objSheet->setCellValue('A2', "购货单位：".$custname); //客户名称
+        $objSheet->setCellValue('A2', "购货单位：".$custid); //客户名称
         $objSheet->getStyle('A2')->getAlignment()->setHorizontal(\PHPExcel_Style_Alignment::HORIZONTAL_LEFT); //单元格左对齐
         $objSheet->mergeCells('A2:J2'); //合并客户名称单元格
         $objSheet->getStyle('A2')->getFont()->setSize(11);
